@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Swarm Workspace</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .workspace-container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .swarm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .agent-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .agent-card.active {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .agent-badge {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+        }
+
+        .agent-card.active .agent-badge {
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        .agent-name {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-role {
+            font-size: 0.85rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .agent-status {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="workspace-container">
+        <header>
+            <h1>Free AI Swarm Orchestrator</h1>
+            <p class="subtitle">Run your custom chain across free tier model frameworks</p>
+        </header>
+
+        <div class="input-section">
+            <textarea id="taskInput" placeholder="Enter your complex project goal here (e.g., 'Draft a business proposal for a bakery and audit its budget logic')..."></textarea>
+            <div class="btn-container">
+                <button id="startPipelineBtn">Deploy Swarm Pipeline</button>
+            </div>
+        </div>
+
+        <div class="swarm-grid">
+            <div class="agent-card" id="agent-gemini">
+                <div class="agent-badge"></div>
+                <div class="agent-name">Gemini (Free)</div>
+                <div class="agent-role">Data Ingester</div>
+                <div class="agent-status" id="status-gemini">Idle</div>
+            </div>
+
+            <div class="agent-card" id="agent-chatgpt">
+                <div class="agent-badge"></div>
+                <div class="agent-name">ChatGPT (Mini)</div>
+                <div class="agent-role">Code & Text Builder</div>
+                <div class="agent-status" id="status-chatgpt">Idle</div>
+            </div>
+
+            <div class="agent-card" id="agent-claude">
+                <div class="agent-badge"></div>
+                <div class="agent-name">Claude (Free)</div>
+                <div class="agent-role">Quality Inspector</div>
+                <div class="agent-status" id="status-claude">Idle</div>
+            </div>
+
+            <div class="agent-card" id="agent-copilot">
+                <div class="agent-badge"></div>
+                <div class="agent-name">Copilot (Web)</div>
+                <div class="agent-role">Fact Checker</div>
+                <div class="agent-status" id="status-copilot">Idle</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('startPipelineBtn').addEventListener('click', function() {
+            const taskText = document.getElementById('taskInput').value.trim();
+            if (!taskText) {
+                alert('Please enter a project goal or task first.');
+                return;
+            }
+
+            resetPipeline();
+            runPipeline();
+        });
+
+        function resetPipeline() {
+            const statuses = ['gemini', 'chatgpt', 'claude', 'copilot'];
+            statuses.forEach(id => {
+                const card = document.getElementById(`agent-${id}`);
+                const statusText = document.getElementById(`status-${id}`);
+                card.classList.remove('active');
+                statusText.innerText = 'Idle';
+                statusText.style.color = '#94a3b8';
+            });
+        }
+
+        function runPipeline() {
+            // Step 1: Gemini Processing
+            updateAgentStatus('gemini', 'Analyzing data & planning tasks...', true);
+
+            // Simulate the sequential handoffs of manual Swarm Prompting
+            setTimeout(() => {
+                updateAgentStatus('gemini', 'Task breakdown ready ✓', false);
+                updateAgentStatus('chatgpt', 'Generating raw code and drafting text...', true);
+
+                setTimeout(() => {
+                    updateAgentStatus('chatgpt', 'Draft code completed ✓', false);
+                    updateAgentStatus('claude', 'Reviewing bugs and optimizing logic...', true);
+
+                    setTimeout(() => {
+                        updateAgentStatus('claude', 'Refined copy polished ✓', false);
+                        updateAgentStatus('copilot', 'Verifying live links & data anchors...', true);
+
+                        setTimeout(() => {
+                            updateAgentStatus('copilot', 'Live verification complete ✓', false);
+                            setTimeout(() => {
+                                alert('Swarm pipeline execution finished successfully! Your output has run through the quality chain.');
+                            }, 300);
+                        }, 2000);
+                    }, 2000);
+                }, 2000);
+            }, 2000);
+        }
+
+        function updateAgentStatus(agentId, message, isActive) {
+            const card = document.getElementById(`agent-${agentId}`);
+            const statusText = document.getElementById(`status-${agentId}`);
+            
+            if (isActive) {
+                card.classList.add('active');
+                statusText.style.color = '#38bdf8';
+            } else {
+                card.classList.remove('active');
+                statusText.style.color = '#10b981';
+            }
+            statusText.innerText = message;
+        }
+    </script>
+</body>
+</html>
